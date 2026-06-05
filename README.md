@@ -1,5 +1,7 @@
 # PiKVM for Home Assistant
 
+<img src="logo.png" alt="PiKVM logo" width="300">
+
 `pikvm` is a Home Assistant custom integration for [PiKVM](https://pikvm.org/) that talks to
 the [kvmd API](https://docs.pikvm.org/api/) directly — and optionally to the PiKVM host over
 SSH for system-level features (status LEDs, OLED screen, update status, shutdown).
@@ -89,6 +91,13 @@ service: pikvm.send_key
 data:
   key: CTRL-ALT-DEL
 ```
+
+## Branding
+
+This repository bundles PiKVM logo assets (`icon.png`, `logo.png` and
+`custom_components/pikvm/brand/`). PiKVM and related marks belong to their respective
+owners. The integration code is GPL-3.0, but the bundled third-party logos are not
+relicensed under GPL.
 
 ## License
 
