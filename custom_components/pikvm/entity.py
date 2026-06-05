@@ -25,14 +25,14 @@ def build_device_info(coordinator: PiKVMDataUpdateCoordinator) -> DeviceInfo:
     """Return the device info for the PiKVM device."""
     info = coordinator.data.info if coordinator.data else {}
     platform = _dig(info, "hw", "platform") or {}
-    model = platform.get("model")
-    base = platform.get("base")
 
     return DeviceInfo(
         identifiers={(DOMAIN, coordinator.config_entry.entry_id)},
         name=coordinator.config_entry.title,
         manufacturer="PiKVM",
-        model=f"{model} ({base})" if model and base else model or base,
+        model=platform.get("model"),
+        hw_version=platform.get("base"),
+        serial_number=platform.get("serial"),
         sw_version=_dig(info, "system", "kvmd", "version"),
         configuration_url=coordinator.client.base_url,
     )

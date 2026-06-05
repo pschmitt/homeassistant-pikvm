@@ -18,6 +18,8 @@ SSH for system-level features (status LEDs, OLED screen, update status, shutdown
     handy to detect boot prompts (LUKS passphrase, GRUB rescue, ...). The full text is
     available in the `full_text` attribute.
   - `CPU temperature` and `kvmd version` (diagnostic)
+- **Device info**: model, hardware revision, serial number and kvmd version straight
+  from the kvmd API
 - **Camera**: `Screen` — snapshot of the captured screen
 - **Switches** (SSH)
   - `LEDs`: Raspberry Pi status LEDs
