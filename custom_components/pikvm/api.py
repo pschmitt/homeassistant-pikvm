@@ -159,13 +159,21 @@ class PiKVMApiClient:
         )
 
     async def async_get_snapshot(self) -> bytes:
-        """Return the current streamer snapshot as JPEG bytes."""
-        response = await self._request(
-            "GET",
-            "/api/streamer/snapshot",
-            params={"allow_offline": "1"},
-        )
-        return await response.read()
+        """Return the current streamer snapshot as JPEG bytes.
+
+        The streamer only captures while at least one client is connected,
+        so a short-lived WebSocket session is kept open during the snapshot.
+        """
+        async with self._ws_connect(stream=True) as ws:
+            del ws
+            # Give the streamer a moment to start capturing
+            await asyncio.sleep(1)
+            response = await self._request(
+                "GET",
+                "/api/streamer/snapshot",
+                params={"allow_offline": "1"},
+            )
+            return await response.read()
 
     async def async_get_ocr(self, lang: str) -> str:
         """Run OCR on the current screen content.
