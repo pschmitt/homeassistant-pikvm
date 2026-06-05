@@ -173,7 +173,7 @@ class PiKVMApiClient:
         The streamer only captures while at least one client is connected,
         so a short-lived WebSocket session is kept open during the snapshot.
         """
-        async with self._ws_connect() as ws:
+        async with self._ws_connect(stream=True) as ws:
             del ws
             # Give the streamer a moment to start capturing
             await asyncio.sleep(1)
@@ -189,11 +189,15 @@ class PiKVMApiClient:
         for path in ("/api/streamer/reset", "/api/hid/reset"):
             await self._request("POST", path)
 
-    def _ws_connect(self):  # noqa: ANN202 - aiohttp WS context manager
-        """Open a WebSocket session against the kvmd event API."""
+    def _ws_connect(self, stream: bool = False):  # noqa: ANN202 - aiohttp WS ctx
+        """Open a WebSocket session against the kvmd event API.
+
+        With stream=True the session declares interest in the video stream,
+        which makes kvmd start the streamer (required for OCR/snapshots).
+        """
         return self._session.ws_connect(
             f"{self.base_url}/api/ws",
-            params={"stream": "0"},
+            params={"stream": "1" if stream else "0"},
             headers=self._headers,
         )
 
