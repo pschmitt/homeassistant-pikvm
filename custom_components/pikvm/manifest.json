@@ -1,0 +1,20 @@
+{
+  "domain": "pikvm",
+  "name": "PiKVM",
+  "codeowners": [
+    "@pschmitt"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/pschmitt/homeassistant-pikvm",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/pschmitt/homeassistant-pikvm/issues",
+  "loggers": [
+    "custom_components.pikvm",
+    "asyncssh"
+  ],
+  "requirements": [
+    "asyncssh>=2.14.2"
+  ],
+  "version": "0.1.0"
+}

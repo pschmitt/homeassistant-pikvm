@@ -1,0 +1,97 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add PiKVM",
+        "description": "Connect Home Assistant to a PiKVM device.",
+        "data": {
+          "host": "Host",
+          "name": "Name",
+          "username": "Username",
+          "password": "Password",
+          "verify_ssl": "Verify SSL certificate",
+          "ssh_enabled": "Enable SSH features (LEDs, OLED, update status, shutdown)",
+          "ssh_username": "SSH username",
+          "ssh_port": "SSH port",
+          "ssh_key_path": "SSH private key path"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Update PiKVM credentials",
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the kvmd API.",
+      "invalid_auth": "Invalid username or password.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This PiKVM is already configured.",
+      "reauth_successful": "Credentials updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "PiKVM options",
+        "data": {
+          "scan_interval": "Update interval in seconds",
+          "ocr_enabled": "Enable the OCR sensor",
+          "ocr_scan_interval": "OCR update interval in seconds",
+          "ocr_lang": "OCR language (tesseract)",
+          "keymap": "Keyboard layout of the target (keymap)"
+        }
+      }
+    }
+  },
+  "services": {
+    "send_text": {
+      "name": "Send text",
+      "description": "Type text on the target via the PiKVM virtual keyboard.",
+      "fields": {
+        "text": {
+          "name": "Text",
+          "description": "The text to type. \\n and <enter> are converted to the Enter key."
+        },
+        "slow": {
+          "name": "Slow typing",
+          "description": "Type character by character via key events. Slower, but reliable for early-boot prompts (e.g. LUKS passphrases)."
+        },
+        "delay": {
+          "name": "Delay",
+          "description": "Delay between key press and release in seconds (slow mode only)."
+        },
+        "keymap": {
+          "name": "Keymap",
+          "description": "Keyboard layout of the target. Defaults to the configured keymap."
+        },
+        "device_id": {
+          "name": "Device",
+          "description": "The PiKVM device to type on. Only required when multiple PiKVMs are configured."
+        }
+      }
+    },
+    "send_key": {
+      "name": "Send key",
+      "description": "Press a single key on the target (e.g. Escape, Enter, F2, CTRL-ALT-DEL).",
+      "fields": {
+        "key": {
+          "name": "Key",
+          "description": "Web key name (Escape, Enter, KeyA, Digit1, F2, ...) or alias (ESC, ENTER, CTRL-ALT-DEL)."
+        },
+        "delay": {
+          "name": "Delay",
+          "description": "Delay between key press and release in seconds."
+        },
+        "device_id": {
+          "name": "Device",
+          "description": "The PiKVM device to type on. Only required when multiple PiKVMs are configured."
+        }
+      }
+    }
+  }
+}

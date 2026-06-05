@@ -1,0 +1,56 @@
+send_text:
+  fields:
+    text:
+      required: true
+      example: "echo hello-there"
+      selector:
+        text:
+          multiline: true
+    slow:
+      required: false
+      default: false
+      selector:
+        boolean:
+    delay:
+      required: false
+      example: 1.0
+      selector:
+        number:
+          min: 0.05
+          max: 5
+          step: 0.05
+          unit_of_measurement: s
+          mode: box
+    keymap:
+      required: false
+      example: "de"
+      selector:
+        text:
+    device_id:
+      required: false
+      selector:
+        device:
+          integration: pikvm
+
+send_key:
+  fields:
+    key:
+      required: true
+      example: "Escape"
+      selector:
+        text:
+    delay:
+      required: false
+      example: 0.2
+      selector:
+        number:
+          min: 0.05
+          max: 5
+          step: 0.05
+          unit_of_measurement: s
+          mode: box
+    device_id:
+      required: false
+      selector:
+        device:
+          integration: pikvm
