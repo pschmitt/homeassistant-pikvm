@@ -21,9 +21,8 @@ SSH for system-level features (status LEDs, OLED screen, update status, shutdown
 - **Device info**: model, hardware revision, serial number and kvmd version straight
   from the kvmd API
 - **Camera**: `Screen` — snapshot of the captured screen
-- **Switches** (SSH)
-  - `LEDs`: Raspberry Pi status LEDs
-  - `OLED`: kvmd OLED screen services
+- **Light** (SSH): `LEDs` — Raspberry Pi status LEDs
+- **Switch** (SSH): `OLED` — kvmd OLED screen services
 - **Buttons**
   - `Reset stream`: reset the streamer + HID subsystems
   - `Shutdown`: shut down the PiKVM host (SSH)
