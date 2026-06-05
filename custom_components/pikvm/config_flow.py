@@ -76,40 +76,56 @@ async def _async_validate(hass: HomeAssistant, data: dict[str, Any]) -> None:
     await client.async_get_info()
 
 
+def _connection_schema(
+    defaults: Mapping[str, Any],
+    *,
+    password_optional: bool = False,
+) -> dict[Any, Any]:
+    """Build the shared connection schema fields."""
+    password_key = (
+        vol.Optional(CONF_PASSWORD) if password_optional else vol.Required(CONF_PASSWORD)
+    )
+    return {
+        vol.Required(CONF_HOST, default=defaults.get(CONF_HOST, "")): TextSelector(),
+        vol.Required(
+            CONF_USERNAME, default=defaults.get(CONF_USERNAME, "admin")
+        ): TextSelector(),
+        password_key: TextSelector(
+            TextSelectorConfig(type=TextSelectorType.PASSWORD)
+        ),
+        vol.Required(
+            CONF_VERIFY_SSL,
+            default=defaults.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
+        ): BooleanSelector(),
+        vol.Required(
+            CONF_SSH_ENABLED,
+            default=defaults.get(CONF_SSH_ENABLED, DEFAULT_SSH_ENABLED),
+        ): BooleanSelector(),
+        vol.Required(
+            CONF_SSH_USERNAME,
+            default=defaults.get(CONF_SSH_USERNAME, DEFAULT_SSH_USERNAME),
+        ): TextSelector(),
+        vol.Required(
+            CONF_SSH_PORT,
+            default=defaults.get(CONF_SSH_PORT, DEFAULT_SSH_PORT),
+        ): NumberSelector(
+            NumberSelectorConfig(min=1, max=65535, mode=NumberSelectorMode.BOX)
+        ),
+        vol.Required(
+            CONF_SSH_KEY_PATH,
+            default=defaults.get(CONF_SSH_KEY_PATH, DEFAULT_SSH_KEY_PATH),
+        ): TextSelector(),
+    }
+
+
 def _user_schema(defaults: Mapping[str, Any]) -> vol.Schema:
     """Build the user step schema."""
     return vol.Schema(
         {
-            vol.Required(CONF_HOST, default=defaults.get(CONF_HOST, "")): TextSelector(),
-            vol.Optional(CONF_NAME, default=defaults.get(CONF_NAME, "PiKVM")): TextSelector(),
-            vol.Required(
-                CONF_USERNAME, default=defaults.get(CONF_USERNAME, "admin")
+            vol.Optional(
+                CONF_NAME, default=defaults.get(CONF_NAME, "PiKVM")
             ): TextSelector(),
-            vol.Required(CONF_PASSWORD): TextSelector(
-                TextSelectorConfig(type=TextSelectorType.PASSWORD)
-            ),
-            vol.Required(
-                CONF_VERIFY_SSL,
-                default=defaults.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
-            ): BooleanSelector(),
-            vol.Required(
-                CONF_SSH_ENABLED,
-                default=defaults.get(CONF_SSH_ENABLED, DEFAULT_SSH_ENABLED),
-            ): BooleanSelector(),
-            vol.Required(
-                CONF_SSH_USERNAME,
-                default=defaults.get(CONF_SSH_USERNAME, DEFAULT_SSH_USERNAME),
-            ): TextSelector(),
-            vol.Required(
-                CONF_SSH_PORT,
-                default=defaults.get(CONF_SSH_PORT, DEFAULT_SSH_PORT),
-            ): NumberSelector(
-                NumberSelectorConfig(min=1, max=65535, mode=NumberSelectorMode.BOX)
-            ),
-            vol.Required(
-                CONF_SSH_KEY_PATH,
-                default=defaults.get(CONF_SSH_KEY_PATH, DEFAULT_SSH_KEY_PATH),
-            ): TextSelector(),
+            **_connection_schema(defaults),
         }
     )
 
@@ -153,6 +169,55 @@ class PiKVMConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=_user_schema(user_input or {}),
+            errors=errors,
+        )
+
+    async def async_step_reconfigure(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> ConfigFlowResult:
+        """Handle reconfiguration of an existing entry."""
+        errors: dict[str, str] = {}
+        entry = self._get_reconfigure_entry()
+
+        if user_input is not None:
+            user_input[CONF_SSH_PORT] = int(user_input[CONF_SSH_PORT])
+            # An empty password means: keep the current one
+            if not user_input.get(CONF_PASSWORD):
+                user_input[CONF_PASSWORD] = entry.data[CONF_PASSWORD]
+            data = {**entry.data, **user_input}
+
+            try:
+                await _async_validate(self.hass, data)
+            except PiKVMAuthError:
+                errors["base"] = "invalid_auth"
+            except PiKVMApiError:
+                errors["base"] = "cannot_connect"
+            except Exception:  # noqa: BLE001
+                _LOGGER.exception("Unexpected exception while validating PiKVM config")
+                errors["base"] = "unknown"
+            else:
+                new_unique_id = data[CONF_HOST]
+                for other in self._async_current_entries():
+                    if (
+                        other.entry_id != entry.entry_id
+                        and other.unique_id == new_unique_id
+                    ):
+                        return self.async_abort(reason="already_configured")
+                return self.async_update_reload_and_abort(
+                    entry,
+                    data=data,
+                    unique_id=new_unique_id,
+                )
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                _connection_schema(
+                    user_input or entry.data,
+                    password_optional=True,
+                )
+            ),
             errors=errors,
         )
 

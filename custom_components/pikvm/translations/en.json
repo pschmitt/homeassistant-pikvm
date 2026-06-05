@@ -16,6 +16,20 @@
           "ssh_key_path": "SSH private key path"
         }
       },
+      "reconfigure": {
+        "title": "Reconfigure PiKVM",
+        "description": "Update the connection settings. Leave the password empty to keep the current one.",
+        "data": {
+          "host": "Host",
+          "username": "Username",
+          "password": "Password",
+          "verify_ssl": "Verify SSL certificate",
+          "ssh_enabled": "Enable SSH features (LEDs, OLED, update status, shutdown)",
+          "ssh_username": "SSH username",
+          "ssh_port": "SSH port",
+          "ssh_key_path": "SSH private key path"
+        }
+      },
       "reauth_confirm": {
         "title": "Update PiKVM credentials",
         "data": {
@@ -31,7 +45,8 @@
     },
     "abort": {
       "already_configured": "This PiKVM is already configured.",
-      "reauth_successful": "Credentials updated."
+      "reauth_successful": "Credentials updated.",
+      "reconfigure_successful": "Configuration updated."
     }
   },
   "options": {
