@@ -79,7 +79,13 @@ class PiKVMSshClient:
                     known_hosts=None,
                 ) as conn:
                     result = await conn.run(command)
-        except (TimeoutError, OSError, asyncssh.Error) as err:
+        except (
+            TimeoutError,
+            OSError,
+            ValueError,
+            asyncssh.Error,
+            asyncssh.KeyImportError,
+        ) as err:
             raise PiKVMSshError(f"SSH command failed on {self._host}: {err}") from err
 
         stdout = result.stdout or ""

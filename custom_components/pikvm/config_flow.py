@@ -67,13 +67,16 @@ async def _async_validate(hass: HomeAssistant, data: dict[str, Any]) -> None:
         hass,
         verify_ssl=data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
     )
-    client = PiKVMApiClient(
-        session=session,
-        host=data[CONF_HOST],
-        username=data[CONF_USERNAME],
-        password=data[CONF_PASSWORD],
-    )
-    await client.async_get_info()
+    try:
+        client = PiKVMApiClient(
+            session=session,
+            host=data[CONF_HOST],
+            username=data[CONF_USERNAME],
+            password=data[CONF_PASSWORD],
+        )
+        await client.async_get_info()
+    finally:
+        await session.close()
 
 
 def _connection_schema(

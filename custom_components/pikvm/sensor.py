@@ -46,6 +46,7 @@ class PiKVMOcrSensor(CoordinatorEntity[PiKVMOcrCoordinator], SensorEntity):
     _attr_has_entity_name = True
     _attr_name = "OCR"
     _attr_icon = "mdi:ocr"
+    _unrecorded_attributes = frozenset({ATTR_FULL_TEXT})
 
     def __init__(self, coordinator: PiKVMOcrCoordinator) -> None:
         """Initialize the sensor."""

@@ -110,7 +110,10 @@ class PiKVMApiClient:
         if response.status in (401, 403):
             raise PiKVMAuthError(f"Authentication failed for {url}")
         if response.status >= 400:
-            body = await response.text()
+            try:
+                body = await response.text()
+            except (TimeoutError, aiohttp.ClientError, UnicodeDecodeError):
+                body = "<unreadable body>"
             raise PiKVMApiError(
                 f"{method} {path} failed with HTTP {response.status}: {body[:200]}"
             )
@@ -164,16 +167,20 @@ class PiKVMApiClient:
         The streamer only captures while at least one client is connected,
         so a short-lived WebSocket session is kept open during the snapshot.
         """
-        async with self._ws_connect(stream=True) as ws:
-            del ws
-            # Give the streamer a moment to start capturing
-            await asyncio.sleep(1)
-            response = await self._request(
-                "GET",
-                "/api/streamer/snapshot",
-                params={"allow_offline": "1"},
-            )
-            return await response.read()
+        try:
+            async with asyncio.timeout(DEFAULT_REQUEST_TIMEOUT * 2):
+                async with self._ws_connect(stream=True) as ws:
+                    del ws
+                    # Give the streamer a moment to start capturing
+                    await asyncio.sleep(1)
+                    response = await self._request(
+                        "GET",
+                        "/api/streamer/snapshot",
+                        params={"allow_offline": "1"},
+                    )
+                    return await response.read()
+        except (TimeoutError, aiohttp.ClientError, OSError) as err:
+            raise PiKVMApiError(f"Snapshot failed: {err}") from err
 
     async def async_get_ocr(self, lang: str) -> str:
         """Run OCR on the current screen content.
@@ -181,16 +188,20 @@ class PiKVMApiClient:
         The streamer only captures while at least one client is connected,
         so a short-lived WebSocket session is kept open during the snapshot.
         """
-        async with self._ws_connect(stream=True) as ws:
-            del ws
-            # Give the streamer a moment to start capturing
-            await asyncio.sleep(1)
-            response = await self._request(
-                "GET",
-                "/api/streamer/snapshot",
-                params={"ocr": "1", "lang": lang},
-            )
-            return (await response.text()).strip()
+        try:
+            async with asyncio.timeout(DEFAULT_REQUEST_TIMEOUT * 2):
+                async with self._ws_connect(stream=True) as ws:
+                    del ws
+                    # Give the streamer a moment to start capturing
+                    await asyncio.sleep(1)
+                    response = await self._request(
+                        "GET",
+                        "/api/streamer/snapshot",
+                        params={"ocr": "1", "lang": lang},
+                    )
+                    return (await response.text()).strip()
+        except (TimeoutError, aiohttp.ClientError, OSError) as err:
+            raise PiKVMApiError(f"OCR snapshot failed: {err}") from err
 
     async def async_reset(self) -> None:
         """Reset the streamer and the HID subsystem."""
