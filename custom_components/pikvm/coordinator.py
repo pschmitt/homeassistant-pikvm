@@ -58,9 +58,7 @@ class PiKVMDataUpdateCoordinator(DataUpdateCoordinator[PiKVMData]):
             _LOGGER,
             name=f"{DOMAIN}_{config_entry.entry_id}",
             update_interval=timedelta(
-                seconds=config_entry.options.get(
-                    CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
-                )
+                seconds=config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
             ),
         )
         self.config_entry = config_entry
@@ -116,9 +114,7 @@ class PiKVMOcrCoordinator(DataUpdateCoordinator[str | None]):
             _LOGGER,
             name=f"{DOMAIN}_{config_entry.entry_id}_ocr",
             update_interval=timedelta(
-                seconds=config_entry.options.get(
-                    CONF_OCR_SCAN_INTERVAL, DEFAULT_OCR_SCAN_INTERVAL
-                )
+                seconds=config_entry.options.get(CONF_OCR_SCAN_INTERVAL, DEFAULT_OCR_SCAN_INTERVAL)
             ),
         )
         self.config_entry = config_entry

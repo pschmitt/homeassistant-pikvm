@@ -70,7 +70,7 @@
       "fields": {
         "text": {
           "name": "Text",
-          "description": "The text to type. \\n and <enter> are converted to the Enter key."
+          "description": "The text to type. \\n and [enter] are converted to the Enter key."
         },
         "slow": {
           "name": "Slow typing",

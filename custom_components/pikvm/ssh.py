@@ -19,8 +19,7 @@ STATUS_COMMAND = (
     "systemctl --quiet is-active kvmd-oled && echo oled=1 || echo oled=0"
 )
 LEDS_ON_COMMAND = (
-    "echo mmc0 > /sys/class/leds/led0/trigger; "
-    "echo default-on > /sys/class/leds/led1/trigger"
+    "echo mmc0 > /sys/class/leds/led0/trigger; echo default-on > /sys/class/leds/led1/trigger"
 )
 LEDS_OFF_COMMAND = (
     "echo 0 | tee /sys/class/leds/led0/brightness /sys/class/leds/led1/brightness "

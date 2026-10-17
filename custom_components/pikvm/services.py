@@ -5,11 +5,11 @@ from __future__ import annotations
 import logging
 
 import voluptuous as vol
-
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
-from homeassistant.helpers import config_validation as cv, device_registry as dr
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import device_registry as dr
 
 from .api import PiKVMApiError
 from .const import (
@@ -88,9 +88,7 @@ def async_setup_services(hass: HomeAssistant) -> None:
         """Type text on the PiKVM target."""
         entry = _async_resolve_entry(hass, call)
         client = entry.runtime_data.client
-        keymap: str = call.data.get(ATTR_KEYMAP) or entry.options.get(
-            CONF_KEYMAP, DEFAULT_KEYMAP
-        )
+        keymap: str = call.data.get(ATTR_KEYMAP) or entry.options.get(CONF_KEYMAP, DEFAULT_KEYMAP)
         text = _expand_text(call.data[ATTR_TEXT])
 
         try:

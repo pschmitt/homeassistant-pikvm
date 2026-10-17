@@ -7,7 +7,6 @@ from collections.abc import Mapping
 from typing import Any
 
 import voluptuous as vol
-
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
@@ -85,17 +84,11 @@ def _connection_schema(
     password_optional: bool = False,
 ) -> dict[Any, Any]:
     """Build the shared connection schema fields."""
-    password_key = (
-        vol.Optional(CONF_PASSWORD) if password_optional else vol.Required(CONF_PASSWORD)
-    )
+    password_key = vol.Optional(CONF_PASSWORD) if password_optional else vol.Required(CONF_PASSWORD)
     return {
         vol.Required(CONF_HOST, default=defaults.get(CONF_HOST, "")): TextSelector(),
-        vol.Required(
-            CONF_USERNAME, default=defaults.get(CONF_USERNAME, "admin")
-        ): TextSelector(),
-        password_key: TextSelector(
-            TextSelectorConfig(type=TextSelectorType.PASSWORD)
-        ),
+        vol.Required(CONF_USERNAME, default=defaults.get(CONF_USERNAME, "admin")): TextSelector(),
+        password_key: TextSelector(TextSelectorConfig(type=TextSelectorType.PASSWORD)),
         vol.Required(
             CONF_VERIFY_SSL,
             default=defaults.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
@@ -111,9 +104,7 @@ def _connection_schema(
         vol.Required(
             CONF_SSH_PORT,
             default=defaults.get(CONF_SSH_PORT, DEFAULT_SSH_PORT),
-        ): NumberSelector(
-            NumberSelectorConfig(min=1, max=65535, mode=NumberSelectorMode.BOX)
-        ),
+        ): NumberSelector(NumberSelectorConfig(min=1, max=65535, mode=NumberSelectorMode.BOX)),
         vol.Required(
             CONF_SSH_KEY_PATH,
             default=defaults.get(CONF_SSH_KEY_PATH, DEFAULT_SSH_KEY_PATH),
@@ -125,9 +116,7 @@ def _user_schema(defaults: Mapping[str, Any]) -> vol.Schema:
     """Build the user step schema."""
     return vol.Schema(
         {
-            vol.Optional(
-                CONF_NAME, default=defaults.get(CONF_NAME, "PiKVM")
-            ): TextSelector(),
+            vol.Optional(CONF_NAME, default=defaults.get(CONF_NAME, "PiKVM")): TextSelector(),
             **_connection_schema(defaults),
         }
     )
@@ -202,10 +191,7 @@ class PiKVMConfigFlow(ConfigFlow, domain=DOMAIN):
             else:
                 new_unique_id = data[CONF_HOST]
                 for other in self._async_current_entries():
-                    if (
-                        other.entry_id != entry.entry_id
-                        and other.unique_id == new_unique_id
-                    ):
+                    if other.entry_id != entry.entry_id and other.unique_id == new_unique_id:
                         return self.async_abort(reason="already_configured")
                 return self.async_update_reload_and_abort(
                     entry,
@@ -301,9 +287,7 @@ class PiKVMOptionsFlow(OptionsFlow):
                     ): BooleanSelector(),
                     vol.Required(
                         CONF_OCR_SCAN_INTERVAL,
-                        default=options.get(
-                            CONF_OCR_SCAN_INTERVAL, DEFAULT_OCR_SCAN_INTERVAL
-                        ),
+                        default=options.get(CONF_OCR_SCAN_INTERVAL, DEFAULT_OCR_SCAN_INTERVAL),
                     ): NumberSelector(
                         NumberSelectorConfig(
                             min=MIN_SCAN_INTERVAL, mode=NumberSelectorMode.BOX, step=1

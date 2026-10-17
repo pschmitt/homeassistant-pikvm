@@ -114,9 +114,7 @@ class PiKVMApiClient:
                 body = await response.text()
             except (TimeoutError, aiohttp.ClientError, UnicodeDecodeError):
                 body = "<unreadable body>"
-            raise PiKVMApiError(
-                f"{method} {path} failed with HTTP {response.status}: {body[:200]}"
-            )
+            raise PiKVMApiError(f"{method} {path} failed with HTTP {response.status}: {body[:200]}")
         return response
 
     async def _request_json(
@@ -276,9 +274,7 @@ class PiKVMApiClient:
                 for char in text:
                     mapped = char_to_web_key(char, keymap)
                     if mapped is None:
-                        _LOGGER.warning(
-                            "Skipping character %r: cannot map to a key event", char
-                        )
+                        _LOGGER.warning("Skipping character %r: cannot map to a key event", char)
                         continue
                     key, shift = mapped
                     if shift:
