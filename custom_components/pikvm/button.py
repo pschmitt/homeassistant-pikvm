@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from homeassistant.components.button import ButtonEntity
 from homeassistant.const import EntityCategory
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -29,7 +29,16 @@ async def async_setup_entry(
     if runtime.ssh_client is not None:
         entities.append(PiKVMShutdownButton(coordinator, runtime.ssh_client))
 
-    if coordinator.data and coordinator.data.atx.get("enabled"):
+    async_add_entities(entities)
+    added = False
+
+    @callback
+    def _add_atx() -> None:
+        nonlocal added
+        if added or not coordinator.data or not coordinator.data.atx.get("enabled"):
+            return
+        added = True
+        entities = []
         entities.extend(
             PiKVMAtxButton(coordinator, action, name)
             for action, name in (
@@ -39,7 +48,10 @@ async def async_setup_entry(
             )
         )
 
-    async_add_entities(entities)
+        async_add_entities(entities)
+
+    _add_atx()
+    config_entry.async_on_unload(coordinator.async_add_listener(_add_atx))
 
 
 class PiKVMResetButton(PiKVMEntity, ButtonEntity):

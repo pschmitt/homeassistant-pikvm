@@ -78,12 +78,10 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: PiKVMConfigEntry)
         )
 
     coordinator = PiKVMDataUpdateCoordinator(hass, config_entry, client, ssh_client)
-    await coordinator.async_config_entry_first_refresh()
 
     ocr_coordinator: PiKVMOcrCoordinator | None = None
     if config_entry.options.get(CONF_OCR_ENABLED, DEFAULT_OCR_ENABLED):
         ocr_coordinator = PiKVMOcrCoordinator(hass, config_entry, client, coordinator)
-        await ocr_coordinator.async_config_entry_first_refresh()
 
     config_entry.runtime_data = PiKVMRuntimeData(
         client=client,
@@ -92,8 +90,17 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: PiKVMConfigEntry)
         ocr_coordinator=ocr_coordinator,
     )
 
+    if coordinator.data is None:
+        coordinator.last_update_success = False
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
     config_entry.async_on_unload(config_entry.add_update_listener(async_update_listener))
+
+    async def _first_refresh() -> None:
+        await coordinator.async_refresh()
+        if ocr_coordinator is not None:
+            await ocr_coordinator.async_refresh()
+
+    config_entry.async_create_background_task(hass, _first_refresh(), "pikvm_first_refresh")
     return True
 
 

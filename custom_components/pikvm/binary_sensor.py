@@ -6,7 +6,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
 )
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import PiKVMConfigEntry
@@ -28,10 +28,22 @@ async def async_setup_entry(
     if runtime.ssh_client is not None:
         entities.append(PiKVMUpdatingBinarySensor(coordinator))
 
-    if coordinator.data and coordinator.data.atx.get("enabled"):
+    async_add_entities(entities)
+    added = False
+
+    @callback
+    def _add_atx() -> None:
+        nonlocal added
+        if added or not coordinator.data or not coordinator.data.atx.get("enabled"):
+            return
+        added = True
+        entities = []
         entities.append(PiKVMAtxPowerBinarySensor(coordinator))
 
-    async_add_entities(entities)
+        async_add_entities(entities)
+
+    _add_atx()
+    config_entry.async_on_unload(coordinator.async_add_listener(_add_atx))
 
 
 class PiKVMOnlineBinarySensor(PiKVMEntity, BinarySensorEntity):
