@@ -1,113 +1,47 @@
-# PiKVM for Home Assistant
+<p align="center">
+  <img src="logo.png" width="128" alt="PiKVM logo">
+</p>
 
-<img src="logo.png" alt="PiKVM logo" width="300">
+<p align="center">
+  <a href="https://my.home-assistant.io/redirect/marketplace_repository/?owner=pschmitt&amp;repository=homeassistant-pikvm&amp;category=integration"><img src="https://my.home-assistant.io/badges/marketplace_repository.svg" alt="Open this integration in Home Assistant Marketplace"></a>
+</p>
 
-`pikvm` is a Home Assistant custom integration for [PiKVM](https://pikvm.org/) that talks to
-the [kvmd API](https://docs.pikvm.org/api/) directly — and optionally to the PiKVM host over
-SSH for system-level features (status LEDs, OLED screen, update status, shutdown).
+<h1 align="center">PiKVM for Home Assistant</h1>
+
+<p align="center">Monitor a PiKVM screen and control its keyboard, ATX power and optional host features.</p>
+
+The integration uses the [kvmd API](https://docs.pikvm.org/api/) for normal
+operations and optional SSH for system-level controls.
 
 ## Features
 
-- **Binary sensors**
-  - `Online`: whether the kvmd API is reachable (an unreachable/powered-off PiKVM shows
-    as `off`, not `unavailable`)
-  - `Updating`: whether a pacman update is in progress (SSH)
-  - `Target power`: ATX power LED of the attached host (only when ATX is enabled)
-- **Sensors**
-  - `OCR`: periodically OCRs the captured screen via the kvmd snapshot OCR endpoint —
-    handy to detect boot prompts (LUKS passphrase, GRUB rescue, ...). The full text is
-    available in the `full_text` attribute.
-  - `CPU temperature` and `kvmd version` (diagnostic)
-- **Device info**: model, hardware revision, serial number and kvmd version straight
-  from the kvmd API
-- **Camera**: `Screen` — snapshot of the captured screen
-- **Light** (SSH): `LEDs` — Raspberry Pi status LEDs
-- **Switch** (SSH): `OLED` — kvmd OLED screen services
-- **Buttons**
-  - `Reset stream`: reset the streamer + HID subsystems
-  - `Shutdown`: shut down the PiKVM host (SSH)
-  - `ATX power on/off/reset` (only when ATX is enabled)
-- **Services**
-  - `pikvm.send_text`: type text on the target via the virtual keyboard. With `slow: true`
-    the text is typed character by character via key events — slower, but reliable for
-    early-boot prompts (e.g. typing LUKS passphrases).
-  - `pikvm.send_key`: press a single key (`Escape`, `Enter`, `F2`, `CTRL-ALT-DEL`, ...)
+- **Screen and OCR:** Capture a screen snapshot and expose recognized text from the kvmd OCR endpoint.
+- **Device status:** Show online state, kvmd version, CPU temperature and optional ATX target power.
+- **Controls:** Send virtual keyboard text or keys, reset the stream and operate ATX power. See [PiKVM controls](docs/controls.md).
+- **Optional SSH:** Control LEDs and OLED, check update status, or shut down the PiKVM host.
 
-## Installation
+## Install
 
-### Home Assistant 2026.11 and newer
+Use the Marketplace badge above on Home Assistant 2026.11 or later to add this
+repository as a custom integration. On older versions, add it as a HACS
+custom repository of type **Integration**. Install and restart Home Assistant.
+The badge does not imply a public catalog listing. For manual installation,
+copy `custom_components/pikvm/` into Home Assistant's `custom_components/`
+directory and restart.
 
-[![Open this integration in Home Assistant Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=pschmitt&repository=homeassistant-pikvm&category=integration)
+## Quick start
 
-Click the badge to add the repository, then install the integration. Restart
-Home Assistant and add the integration from **Settings → Devices & services**.
+1. Add **PiKVM** under **Settings → Devices & services → Add integration**.
+2. Enter its host and kvmd web UI credentials; leave SSH disabled unless needed.
+3. Open the Screen camera or use a supported keyboard or ATX control.
 
-### HACS (older installations)
+## Documentation
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=pschmitt&repository=homeassistant-pikvm&category=integration)
-
-1. For Home Assistant versions before 2026.11, open HACS and add
-   `https://github.com/pschmitt/homeassistant-pikvm` as a custom repository
-   of type **Integration**.
-2. Install **PiKVM**.
-3. Restart Home Assistant.
-
-### Manual
-
-Copy `custom_components/pikvm` from this repository into your Home Assistant
-`custom_components/pikvm` directory and restart.
-
-## Configuration
-
-The integration is configured from the Home Assistant UI:
-
-1. Go to **Settings → Devices & services**.
-2. Add **PiKVM**.
-3. Enter the PiKVM host and the kvmd (web UI) credentials.
-
-### SSH features
-
-LEDs, OLED, update status and shutdown require SSH access to the PiKVM host. Provide an
-SSH username (default `root`) and the path to a private key readable by Home Assistant
-(default `/config/.ssh/id_ed25519`). The matching public key must be in
-`/root/.ssh/authorized_keys` on the PiKVM. Disable SSH features in the config flow if you
-do not want this.
-
-### Options
-
-- Update interval (default 30 s)
-- OCR sensor enable/interval/language
-- Keyboard layout of the target (`keymap`, default `de`) used by `pikvm.send_text`
-
-## Service examples
-
-```yaml
-service: pikvm.send_text
-data:
-  text: "echo hello-there\n"
-```
-
-```yaml
-# Reliable typing into a LUKS prompt
-service: pikvm.send_text
-data:
-  text: !secret luks_passphrase
-  slow: true
-```
-
-```yaml
-service: pikvm.send_key
-data:
-  key: CTRL-ALT-DEL
-```
-
-## Branding
-
-This repository bundles PiKVM logo assets (`icon.png`, `logo.png` and
-`custom_components/pikvm/brand/`). PiKVM and related marks belong to their respective
-owners. The integration code is GPL-3.0, but the bundled third-party logos are not
-relicensed under GPL.
+| Topic | Description |
+|-------|-------------|
+| [PiKVM controls](docs/controls.md) | API-backed entities, optional SSH and keyboard actions |
 
 ## License
 
-GPL-3.0. PiKVM and related marks belong to their respective owners.
+[GPL-3.0](LICENSE). PiKVM logos belong to their respective owners and are not
+relicensed under GPL.
