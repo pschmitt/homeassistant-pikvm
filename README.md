@@ -35,12 +35,20 @@ SSH for system-level features (status LEDs, OLED screen, update status, shutdown
 
 ## Installation
 
-### HACS
+### Home Assistant 2026.11 and newer
+
+[![Open this integration in Home Assistant Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=pschmitt&repository=homeassistant-pikvm&category=integration)
+
+Click the badge to add the repository, then install the integration. Restart
+Home Assistant and add the integration from **Settings → Devices & services**.
+
+### HACS (older installations)
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=pschmitt&repository=homeassistant-pikvm&category=integration)
 
-1. Click the badge above, or open HACS and add `https://github.com/pschmitt/homeassistant-pikvm`
-   as a custom repository of type **Integration**.
+1. For Home Assistant versions before 2026.11, open HACS and add
+   `https://github.com/pschmitt/homeassistant-pikvm` as a custom repository
+   of type **Integration**.
 2. Install **PiKVM**.
 3. Restart Home Assistant.
 
